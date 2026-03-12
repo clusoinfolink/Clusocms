@@ -4,11 +4,7 @@ import bcrypt from 'bcryptjs';
 import dbConnect from './mongodb';
 import Admin from './models/Admin';
 
-const nextAuthUrl = process.env.NEXTAUTH_URL ||
-  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3001');
-
 export const authOptions: AuthOptions = {
-  trustHost: true,
   providers: [
     CredentialsProvider({
       name: 'Credentials',
@@ -38,5 +34,4 @@ export const authOptions: AuthOptions = {
   session: { strategy: 'jwt' },
   pages: { signIn: '/' },
   secret: process.env.NEXTAUTH_SECRET,
-  ...(nextAuthUrl && { url: nextAuthUrl }),
 };
