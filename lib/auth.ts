@@ -4,6 +4,9 @@ import bcrypt from 'bcryptjs';
 import dbConnect from './mongodb';
 import Admin from './models/Admin';
 
+const nextAuthUrl = process.env.NEXTAUTH_URL ||
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3001');
+
 export const authOptions: AuthOptions = {
   trustHost: true,
   providers: [
@@ -16,18 +19,24 @@ export const authOptions: AuthOptions = {
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
 
-        await dbConnect();
-        const admin = await Admin.findOne({ email: credentials.email });
-        if (!admin) return null;
+        try {
+          await dbConnect();
+          const admin = await Admin.findOne({ email: credentials.email });
+          if (!admin) return null;
 
-        const isValid = await bcrypt.compare(credentials.password, admin.passwordHash);
-        if (!isValid) return null;
+          const isValid = await bcrypt.compare(credentials.password, admin.passwordHash);
+          if (!isValid) return null;
 
-        return { id: admin._id.toString(), email: admin.email, name: admin.name };
+          return { id: admin._id.toString(), email: admin.email, name: admin.name };
+        } catch (err) {
+          console.error('[Auth] authorize error:', err);
+          return null;
+        }
       },
     }),
   ],
   session: { strategy: 'jwt' },
   pages: { signIn: '/' },
   secret: process.env.NEXTAUTH_SECRET,
+  ...(nextAuthUrl && { url: nextAuthUrl }),
 };
