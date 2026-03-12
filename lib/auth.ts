@@ -5,6 +5,7 @@ import dbConnect from './mongodb';
 import Admin from './models/Admin';
 
 export const authOptions: AuthOptions = {
+  trustHost: true,
   providers: [
     CredentialsProvider({
       name: 'Credentials',
