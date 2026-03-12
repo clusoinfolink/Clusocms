@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { Newspaper, Bell, Users, MessageSquare, Image as ImageIcon, Briefcase, Star } from 'lucide-react';
 import { StatsCard } from '@/components/admin/StatsCard';
 import { GlassButton } from '@/components/ui/GlassButton';
