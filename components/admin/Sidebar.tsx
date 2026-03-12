@@ -65,7 +65,7 @@ export function Sidebar({ unreadCount = 0 }: SidebarProps) {
 
       {/* Footer */}
       <div className="p-4 border-t border-gray-100">
-        <p className="text-xs text-gray-400 text-center">&copy; 2023 Cluso Infolink</p>
+        <p className="text-xs text-gray-400 text-center">&copy; {new Date().getFullYear()} Cluso Infolink</p>
       </div>
     </aside>
   );
