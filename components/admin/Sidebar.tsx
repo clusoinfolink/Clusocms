@@ -17,6 +17,7 @@ const links = [
   { href: '/dashboard/gallery', label: 'Gallery', icon: ImageIcon },
   { href: '/dashboard/testimonials', label: 'Testimonials', icon: Star },
   { href: '/dashboard/messages', label: 'Messages', icon: MessageSquare },
+  { href: '/dashboard/account-requests', label: 'Account Requests', icon: FileText },
   { href: '/dashboard/settings', label: 'Settings', icon: Settings },
 ];
 
