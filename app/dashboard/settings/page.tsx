@@ -4,13 +4,17 @@ import { useEffect, useState } from 'react';
 import { GlassButton } from '@/components/ui/GlassButton';
 import { GlassInput } from '@/components/ui/GlassInput';
 import { GlassCard } from '@/components/ui/GlassCard';
+import { ImageUploader } from '@/components/admin/ImageUploader';
 
 interface Settings {
   siteName: string;
   tagline: string;
+  heroBackgroundImage: string;
+  aboutMissionImage: string;
   contactEmail: string;
   contactPhone: string;
   address: string;
+  trustedCompanies: string[];
   socialLinks: {
     facebook: string;
     twitter: string;
@@ -24,12 +28,16 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
+  const [companyInput, setCompanyInput] = useState('');
   const [form, setForm] = useState<Settings>({
     siteName: '',
     tagline: '',
+    heroBackgroundImage: '',
+    aboutMissionImage: '',
     contactEmail: '',
     contactPhone: '',
     address: '',
+    trustedCompanies: [],
     socialLinks: { facebook: '', twitter: '', linkedin: '', instagram: '' },
   });
 
@@ -41,9 +49,14 @@ export default function SettingsPage() {
         setForm({
           siteName: data.siteName || '',
           tagline: data.tagline || '',
+          heroBackgroundImage: data.heroBackgroundImage || '',
+          aboutMissionImage: data.aboutMissionImage || '',
           contactEmail: data.contactEmail || '',
           contactPhone: data.contactPhone || '',
           address: data.address || '',
+          trustedCompanies: Array.isArray(data.trustedCompanies)
+            ? data.trustedCompanies.filter((item: unknown): item is string => typeof item === 'string')
+            : [],
           socialLinks: {
             facebook: data.socialLinks?.facebook || '',
             twitter: data.socialLinks?.twitter || '',
@@ -65,6 +78,29 @@ export default function SettingsPage() {
   function handleSocial(e: React.ChangeEvent<HTMLInputElement>) {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, socialLinks: { ...prev.socialLinks, [name]: value } }));
+  }
+
+  function addCompany() {
+    const company = companyInput.trim();
+    if (!company) return;
+
+    const alreadyExists = form.trustedCompanies.some(
+      (item) => item.toLowerCase() === company.toLowerCase()
+    );
+    if (alreadyExists) {
+      setCompanyInput('');
+      return;
+    }
+
+    setForm((prev) => ({ ...prev, trustedCompanies: [...prev.trustedCompanies, company] }));
+    setCompanyInput('');
+  }
+
+  function removeCompany(index: number) {
+    setForm((prev) => ({
+      ...prev,
+      trustedCompanies: prev.trustedCompanies.filter((_, i) => i !== index),
+    }));
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -103,6 +139,22 @@ export default function SettingsPage() {
           <div className="space-y-4">
             <GlassInput label="Site Name" name="siteName" value={form.siteName} onChange={handleChange} required />
             <GlassInput label="Tagline" name="tagline" value={form.tagline} onChange={handleChange} />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Hero Background Image</label>
+              <ImageUploader
+                value={form.heroBackgroundImage}
+                onChange={(url) => setForm((prev) => ({ ...prev, heroBackgroundImage: url }))}
+                folder="cluso/hero"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">About Mission Image</label>
+              <ImageUploader
+                value={form.aboutMissionImage}
+                onChange={(url) => setForm((prev) => ({ ...prev, aboutMissionImage: url }))}
+                folder="cluso/about"
+              />
+            </div>
           </div>
         </GlassCard>
 
@@ -122,6 +174,50 @@ export default function SettingsPage() {
                 rows={3}
                 className="w-full rounded-xl border border-gray-200 bg-white/50 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-cluso-deep/30"
               />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Trusted Companies
+              </label>
+              <div className="flex gap-2">
+                <GlassInput
+                  placeholder="Add company name"
+                  value={companyInput}
+                  onChange={(e) => setCompanyInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      addCompany();
+                    }
+                  }}
+                />
+                <GlassButton type="button" variant="secondary" onClick={addCompany}>
+                  Add
+                </GlassButton>
+              </div>
+
+              <div className="mt-3 flex flex-wrap gap-2">
+                {form.trustedCompanies.length === 0 ? (
+                  <p className="text-sm text-gray-500">No companies added yet.</p>
+                ) : (
+                  form.trustedCompanies.map((company, index) => (
+                    <div
+                      key={`${company}-${index}`}
+                      className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-1.5 text-sm text-gray-700"
+                    >
+                      <span>{company}</span>
+                      <button
+                        type="button"
+                        aria-label={`Remove ${company}`}
+                        className="rounded-full px-2 py-0.5 text-xs text-red-600 hover:bg-red-50"
+                        onClick={() => removeCompany(index)}
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ))
+                )}
+              </div>
             </div>
           </div>
         </GlassCard>

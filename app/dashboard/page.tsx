@@ -1,6 +1,6 @@
 export const dynamic = 'force-dynamic';
 
-import { Newspaper, Bell, Users, MessageSquare, Image as ImageIcon, Briefcase, Star } from 'lucide-react';
+import { Newspaper, Bell, Users, MessageSquare, Image as ImageIcon, Briefcase, Star, FileText } from 'lucide-react';
 import { StatsCard } from '@/components/admin/StatsCard';
 import { GlassButton } from '@/components/ui/GlassButton';
 import Link from 'next/link';
@@ -12,11 +12,12 @@ import ContactSubmission from '@/lib/models/ContactSubmission';
 import GalleryImage from '@/lib/models/Gallery';
 import Service from '@/lib/models/Service';
 import Testimonial from '@/lib/models/Testimonial';
+import AccountRequest from '@/lib/models/AccountRequest';
 
 async function getStats() {
   try {
     await dbConnect();
-    const [blogs, notices, team, messages, unread, gallery, services, testimonials] = await Promise.all([
+    const [blogs, notices, team, messages, unread, gallery, services, testimonials, accountRequests] = await Promise.all([
       BlogPost.countDocuments(),
       Notice.countDocuments(),
       TeamMember.countDocuments(),
@@ -25,10 +26,11 @@ async function getStats() {
       GalleryImage.countDocuments(),
       Service.countDocuments(),
       Testimonial.countDocuments(),
+      AccountRequest.countDocuments(),
     ]);
-    return { blogs, notices, team, messages, unread, gallery, services, testimonials };
+    return { blogs, notices, team, messages, unread, gallery, services, testimonials, accountRequests };
   } catch {
-    return { blogs: 0, notices: 0, team: 0, messages: 0, unread: 0, gallery: 0, services: 0, testimonials: 0 };
+    return { blogs: 0, notices: 0, team: 0, messages: 0, unread: 0, gallery: 0, services: 0, testimonials: 0, accountRequests: 0 };
   }
 }
 
@@ -54,14 +56,15 @@ export default async function DashboardPage() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <StatsCard label="Blog Posts" value={stats.blogs} icon={Newspaper} />
-        <StatsCard label="Notices" value={stats.notices} icon={Bell} />
-        <StatsCard label="Team Members" value={stats.team} icon={Users} />
-        <StatsCard label="Unread Messages" value={stats.unread} icon={MessageSquare} color="text-cluso-cream" />
-        <StatsCard label="Gallery Images" value={stats.gallery} icon={ImageIcon} />
-        <StatsCard label="Services" value={stats.services} icon={Briefcase} />
-        <StatsCard label="Testimonials" value={stats.testimonials} icon={Star} />
-        <StatsCard label="Total Messages" value={stats.messages} icon={MessageSquare} />
+        <StatsCard label="Account Requests" value={stats.accountRequests} icon={FileText} href="/dashboard/account-requests" color="text-cluso-cream" />
+        <StatsCard label="Blog Posts" value={stats.blogs} icon={Newspaper} href="/dashboard/blog" />
+        <StatsCard label="Notices" value={stats.notices} icon={Bell} href="/dashboard/notices" />
+        <StatsCard label="Team Members" value={stats.team} icon={Users} href="/dashboard/team" />
+        <StatsCard label="Unread Messages" value={stats.unread} icon={MessageSquare} color="text-cluso-cream" href="/dashboard/messages" />
+        <StatsCard label="Gallery Images" value={stats.gallery} icon={ImageIcon} href="/dashboard/gallery" />
+        <StatsCard label="Services" value={stats.services} icon={Briefcase} href="/dashboard/services" />
+        <StatsCard label="Testimonials" value={stats.testimonials} icon={Star} href="/dashboard/testimonials" />
+        <StatsCard label="Total Messages" value={stats.messages} icon={MessageSquare} href="/dashboard/messages" />
       </div>
 
       {/* Quick Links */}

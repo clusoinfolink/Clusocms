@@ -9,9 +9,10 @@ export interface ImageUploaderProps {
   value?: string;
   onChange: (url: string) => void;
   folder?: string;
+  storage?: 'auto' | 'inline';
 }
 
-export function ImageUploader({ value, onChange, folder }: ImageUploaderProps) {
+export function ImageUploader({ value, onChange, folder, storage = 'auto' }: ImageUploaderProps) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
 
@@ -34,6 +35,7 @@ export function ImageUploader({ value, onChange, folder }: ImageUploaderProps) {
       const formData = new FormData();
       formData.append('file', file);
       if (folder) formData.append('folder', folder);
+      formData.append('storage', storage);
 
       const res = await fetch('/api/upload', {
         method: 'POST',
@@ -44,12 +46,14 @@ export function ImageUploader({ value, onChange, folder }: ImageUploaderProps) {
         const data = await res.json();
         onChange(data.secure_url);
       } else {
-        alert('Upload failed. Please try again.');
+        const data = await res.json().catch(() => null);
+        alert(typeof data?.error === 'string' ? data.error : 'Upload failed. Please try again.');
       }
     } catch {
       alert('Upload failed. Please try again.');
     } finally {
       setUploading(false);
+      e.target.value = '';
     }
   };
 
@@ -63,6 +67,7 @@ export function ImageUploader({ value, onChange, folder }: ImageUploaderProps) {
             width={200}
             height={150}
             className="rounded-xl object-cover border border-gray-200"
+            unoptimized={value.startsWith('data:')}
           />
           <button
             onClick={() => onChange('')}

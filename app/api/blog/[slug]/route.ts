@@ -5,6 +5,13 @@ import dbConnect from '@/lib/mongodb';
 import BlogPost from '@/lib/models/BlogPost';
 import { createBlogSchema } from '@/lib/validations/blog';
 
+function withStatus<T extends { published?: boolean }>(post: T) {
+  return {
+    ...post,
+    status: post.published ? 'published' : 'draft',
+  };
+}
+
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -13,7 +20,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ slu
   await dbConnect();
   const post = await BlogPost.findOne({ slug }).lean();
   if (!post) return NextResponse.json({ error: 'Not found' }, { status: 404 });
-  return NextResponse.json(post);
+  return NextResponse.json(withStatus(post as { published?: boolean }));
 }
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
@@ -30,7 +37,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ slug
   await dbConnect();
   const post = await BlogPost.findOneAndUpdate({ slug }, parsed.data, { new: true });
   if (!post) return NextResponse.json({ error: 'Not found' }, { status: 404 });
-  return NextResponse.json(post);
+  return NextResponse.json(withStatus(post.toObject()));
 }
 
 export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ slug: string }> }) {

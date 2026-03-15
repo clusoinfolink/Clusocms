@@ -41,7 +41,7 @@ export default function EditBlogPage() {
           coverImage: data.coverImage || '',
           author: data.author || '',
           tags: (data.tags || []).join(', '),
-          status: data.status || 'draft',
+          status: data.status || (data.published ? 'published' : 'draft'),
         });
       }
       setLoading(false);
@@ -146,6 +146,7 @@ export default function EditBlogPage() {
                   value={form.coverImage}
                   onChange={(url) => setForm((prev) => ({ ...prev, coverImage: url }))}
                   folder="cluso/blog"
+                  storage="inline"
                 />
               </div>
             </GlassCard>

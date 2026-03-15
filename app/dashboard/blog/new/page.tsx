@@ -138,6 +138,7 @@ export default function NewBlogPage() {
                   value={form.coverImage}
                   onChange={(url) => setForm((prev) => ({ ...prev, coverImage: url }))}
                   folder="cluso/blog"
+                  storage="inline"
                 />
               </div>
             </GlassCard>

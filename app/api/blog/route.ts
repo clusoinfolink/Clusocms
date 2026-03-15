@@ -5,13 +5,23 @@ import dbConnect from '@/lib/mongodb';
 import BlogPost from '@/lib/models/BlogPost';
 import { createBlogSchema } from '@/lib/validations/blog';
 
+function withStatus<T extends { published?: boolean }>(post: T) {
+  return {
+    ...post,
+    status: post.published ? 'published' : 'draft',
+  };
+}
+
 export async function GET() {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   await dbConnect();
-  const posts = await BlogPost.find().sort({ createdAt: -1 }).lean();
-  return NextResponse.json(posts);
+  const posts = await BlogPost.find()
+    .select('title slug author createdAt published')
+    .sort({ createdAt: -1 })
+    .lean();
+  return NextResponse.json(posts.map((post) => withStatus(post as { published?: boolean })));
 }
 
 export async function POST(req: NextRequest) {
@@ -26,5 +36,5 @@ export async function POST(req: NextRequest) {
 
   await dbConnect();
   const post = await BlogPost.create(parsed.data);
-  return NextResponse.json(post, { status: 201 });
+  return NextResponse.json(withStatus(post.toObject()), { status: 201 });
 }

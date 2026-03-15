@@ -10,11 +10,29 @@ interface Message {
   _id: string;
   name: string;
   email: string;
+  companyName?: string;
   phone: string;
   subject: string;
+  department?: 'sales' | 'hr' | 'marketing' | 'others' | string;
   message: string;
   read: boolean;
   createdAt: string;
+}
+
+function getDepartmentBadge(department?: string) {
+  const key = (department || 'others').toLowerCase();
+
+  if (key === 'sales') {
+    return { label: 'Sales', className: 'bg-emerald-100 text-emerald-700 border-emerald-200' };
+  }
+  if (key === 'hr') {
+    return { label: 'HR', className: 'bg-sky-100 text-sky-700 border-sky-200' };
+  }
+  if (key === 'marketing') {
+    return { label: 'Marketing', className: 'bg-amber-100 text-amber-700 border-amber-200' };
+  }
+
+  return { label: 'Others', className: 'bg-gray-100 text-gray-700 border-gray-200' };
 }
 
 export default function MessagesPage() {
@@ -70,6 +88,9 @@ export default function MessagesPage() {
             <div className="text-center text-gray-400 py-12">No messages yet</div>
           ) : (
             messages.map((msg) => (
+              (() => {
+                const dept = getDepartmentBadge(msg.department);
+                return (
               <div
                 key={msg._id}
                 onClick={() => markAsRead(msg)}
@@ -86,7 +107,10 @@ export default function MessagesPage() {
                     <p className={`text-sm truncate ${!msg.read ? 'font-bold text-gray-900' : 'font-medium text-gray-700'}`}>
                       {msg.name}
                     </p>
-                    <p className="text-xs text-gray-500 truncate">{msg.subject || msg.email}</p>
+                    <p className="text-xs text-gray-500 truncate">{msg.subject || msg.companyName || msg.email}</p>
+                    <span className={`inline-flex items-center mt-2 px-2 py-0.5 rounded-full border text-[11px] font-medium ${dept.className}`}>
+                      {dept.label}
+                    </span>
                   </div>
                   <div className="flex items-center gap-1 ml-2 shrink-0">
                     {!msg.read && <div className="w-2 h-2 rounded-full bg-cluso-deep" />}
@@ -106,6 +130,8 @@ export default function MessagesPage() {
                   {new Date(msg.createdAt).toLocaleDateString()}
                 </p>
               </div>
+                );
+              })()
             ))
           )}
         </div>
@@ -113,6 +139,9 @@ export default function MessagesPage() {
         {/* Message Detail */}
         <div className="lg:col-span-2">
           {selected ? (
+            (() => {
+              const dept = getDepartmentBadge(selected.department);
+              return (
             <GlassCard>
               <div className="space-y-4">
                 <div className="flex items-start justify-between">
@@ -121,6 +150,9 @@ export default function MessagesPage() {
                     <p className="text-sm text-gray-500">
                       From: <span className="font-medium text-gray-700">{selected.name}</span>
                     </p>
+                    <span className={`inline-flex items-center mt-2 px-2 py-0.5 rounded-full border text-xs font-medium ${dept.className}`}>
+                      {dept.label}
+                    </span>
                   </div>
                   <div className="flex gap-2">
                     <GlassButton variant="ghost" onClick={() => setDeleteId(selected._id)}>
@@ -133,6 +165,11 @@ export default function MessagesPage() {
                   <span className="flex items-center gap-1">
                     <Mail size={14} /> {selected.email}
                   </span>
+                  {selected.companyName && (
+                    <span className="flex items-center gap-1">
+                      Company: {selected.companyName}
+                    </span>
+                  )}
                   {selected.phone && (
                     <span className="flex items-center gap-1">
                       <Eye size={14} /> {selected.phone}
@@ -150,6 +187,8 @@ export default function MessagesPage() {
                 </div>
               </div>
             </GlassCard>
+              );
+            })()
           ) : (
             <div className="flex flex-col items-center justify-center h-64 text-gray-400">
               <Mail size={48} className="mb-3 opacity-50" />

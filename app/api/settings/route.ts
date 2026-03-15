@@ -15,9 +15,12 @@ export async function GET() {
     settings = await SiteSetting.create({
       siteName: 'Cluso Infolink',
       tagline: "Let's Make It Transparent",
+      heroBackgroundImage: '',
+      aboutMissionImage: '',
       contactEmail: 'info@clusoinfolink.com',
       contactPhone: '',
       address: '',
+      trustedCompanies: [],
       socialLinks: {},
     });
   }
