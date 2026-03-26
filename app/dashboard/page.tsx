@@ -13,11 +13,12 @@ import GalleryImage from '@/lib/models/Gallery';
 import Service from '@/lib/models/Service';
 import Testimonial from '@/lib/models/Testimonial';
 import AccountRequest from '@/lib/models/AccountRequest';
+import CandidateRequest from '@/lib/models/CandidateRequest';
 
 async function getStats() {
   try {
     await dbConnect();
-    const [blogs, notices, team, messages, unread, gallery, services, testimonials, accountRequests] = await Promise.all([
+    const [blogs, notices, team, messages, unread, gallery, services, testimonials, accountRequests, candidateRequests] = await Promise.all([
       BlogPost.countDocuments(),
       Notice.countDocuments(),
       TeamMember.countDocuments(),
@@ -27,10 +28,22 @@ async function getStats() {
       Service.countDocuments(),
       Testimonial.countDocuments(),
       AccountRequest.countDocuments(),
+      CandidateRequest.countDocuments(),
     ]);
-    return { blogs, notices, team, messages, unread, gallery, services, testimonials, accountRequests };
+    return { blogs, notices, team, messages, unread, gallery, services, testimonials, accountRequests, candidateRequests };
   } catch {
-    return { blogs: 0, notices: 0, team: 0, messages: 0, unread: 0, gallery: 0, services: 0, testimonials: 0, accountRequests: 0 };
+    return {
+      blogs: 0,
+      notices: 0,
+      team: 0,
+      messages: 0,
+      unread: 0,
+      gallery: 0,
+      services: 0,
+      testimonials: 0,
+      accountRequests: 0,
+      candidateRequests: 0,
+    };
   }
 }
 
@@ -57,6 +70,7 @@ export default async function DashboardPage() {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <StatsCard label="Account Requests" value={stats.accountRequests} icon={FileText} href="/dashboard/account-requests" color="text-cluso-cream" />
+        <StatsCard label="Candidate Requests" value={stats.candidateRequests} icon={Users} href="/dashboard/candidate-requests" color="text-cluso-cream" />
         <StatsCard label="Blog Posts" value={stats.blogs} icon={Newspaper} href="/dashboard/blog" />
         <StatsCard label="Notices" value={stats.notices} icon={Bell} href="/dashboard/notices" />
         <StatsCard label="Team Members" value={stats.team} icon={Users} href="/dashboard/team" />
