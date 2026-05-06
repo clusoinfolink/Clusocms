@@ -11,6 +11,9 @@ interface CandidateRequest {
   name: string;
   email: string;
   phone: string;
+  jobTitle?: string;
+  jobColor?: string;
+  jobId?: string;
   resumeDocumentId: string;
   resumeFileName: string;
   read: boolean;
@@ -86,9 +89,24 @@ export default function CandidateRequestsPage() {
               >
                 <div className="flex items-start justify-between">
                   <div className="min-w-0 flex-1">
-                    <p className={`text-sm truncate ${!item.read ? 'font-bold text-gray-900' : 'font-medium text-gray-700'}`}>
-                      {item.name}
-                    </p>
+                    <div className="flex items-center gap-2">
+                      <p className={`text-sm truncate ${!item.read ? 'font-bold text-gray-900' : 'font-medium text-gray-700'}`}>
+                        {item.name}
+                      </p>
+                      {item.jobTitle && (
+                        <span 
+                          className="text-[10px] px-2 py-0.5 rounded-full inline-block truncate max-w-[120px]"
+                          style={{
+                            backgroundColor: item.jobColor ? `${item.jobColor}20` : '#e2e8f0',
+                            color: item.jobColor || '#475569',
+                            border: `1px solid ${item.jobColor ? `${item.jobColor}40` : '#cbd5e1'}`
+                          }}
+                          title={item.jobTitle}
+                        >
+                          {item.jobTitle}
+                        </span>
+                      )}
+                    </div>
                     <p className="text-xs text-gray-500 truncate">{item.email}</p>
                   </div>
                   <div className="flex items-center gap-1 ml-2 shrink-0">
@@ -119,7 +137,21 @@ export default function CandidateRequestsPage() {
               <div className="space-y-5">
                 <div className="flex items-start justify-between">
                   <div>
-                    <h2 className="text-lg font-bold text-gray-900">{selected.name}</h2>
+                    <div className="flex items-center gap-3">
+                      <h2 className="text-lg font-bold text-gray-900">{selected.name}</h2>
+                      {selected.jobTitle && (
+                        <span 
+                          className="text-xs px-2.5 py-1 rounded-full"
+                          style={{
+                            backgroundColor: selected.jobColor ? `${selected.jobColor}20` : '#e2e8f0',
+                            color: selected.jobColor || '#475569',
+                            border: `1px solid ${selected.jobColor ? `${selected.jobColor}40` : '#cbd5e1'}`
+                          }}
+                        >
+                          Application for: <span className="font-semibold">{selected.jobTitle}</span>
+                        </span>
+                      )}
+                    </div>
                     <p className="text-sm text-gray-500">Candidate Application</p>
                   </div>
                   <div className="flex gap-2">

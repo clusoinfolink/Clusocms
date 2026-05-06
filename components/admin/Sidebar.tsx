@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard, FileText, Newspaper, Users, Image as ImageIcon,
-  Briefcase, MessageSquare, Settings, Star, Bell, UserPlus,
+  Briefcase, MessageSquare, Settings, Star, Bell, UserPlus, BriefcaseBusiness,
 } from 'lucide-react';
 
 const links = [
@@ -14,8 +14,7 @@ const links = [
   { href: '/dashboard/notices', label: 'Notices', icon: Bell },
   { href: '/dashboard/team', label: 'Team', icon: Users },
   { href: '/dashboard/services', label: 'Services', icon: Briefcase },
-  { href: '/dashboard/gallery', label: 'Gallery', icon: ImageIcon },
-  { href: '/dashboard/testimonials', label: 'Testimonials', icon: Star },
+  { href: '/dashboard/gallery', label: 'Gallery', icon: ImageIcon },  { href: '/dashboard/careers', label: 'Job Posts', icon: BriefcaseBusiness },  { href: '/dashboard/testimonials', label: 'Testimonials', icon: Star },
   { href: '/dashboard/messages', label: 'Messages', icon: MessageSquare },
   { href: '/dashboard/account-requests', label: 'Account Requests', icon: FileText },
   { href: '/dashboard/candidate-requests', label: 'Candidate Requests', icon: UserPlus },

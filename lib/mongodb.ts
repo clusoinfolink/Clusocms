@@ -1,4 +1,10 @@
 import mongoose from 'mongoose';
+import dns from 'dns';
+
+// Fix local DNS resolution issues on Windows for MongoDB SRV records
+if (process.env.NODE_ENV !== 'production') {
+  dns.setServers(['8.8.8.8', '8.8.4.4']);
+}
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/cluso';
 

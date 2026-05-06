@@ -19,11 +19,28 @@ export default function NewServicePage() {
     icon: '',
     image: '',
     order: 0,
+    features: [''],
   });
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: name === 'order' ? Number(value) : value }));
+  }
+
+  function handleFeatureChange(index: number, value: string) {
+    const newFeatures = [...form.features];
+    newFeatures[index] = value;
+    setForm((prev) => ({ ...prev, features: newFeatures }));
+  }
+
+  function addFeature() {
+    setForm((prev) => ({ ...prev, features: [...prev.features, ''] }));
+  }
+
+  function removeFeature(index: number) {
+    if (form.features.length > 1) {
+      setForm((prev) => ({ ...prev, features: prev.features.filter((_, i) => i !== index) }));
+    }
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -34,7 +51,10 @@ export default function NewServicePage() {
     const res = await fetch('/api/services', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form),
+      body: JSON.stringify({
+        ...form,
+        features: form.features.filter(f => f.trim() !== '')
+      }),
     });
 
     if (res.ok) {
@@ -72,17 +92,52 @@ export default function NewServicePage() {
                 className="w-full rounded-xl border border-gray-200 bg-white/50 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-cluso-deep/30"
               />
             </div>
-            <GlassInput label="Icon (Lucide icon name)" name="icon" value={form.icon} onChange={handleChange} />
-            <GlassInput label="Display Order" name="order" type="number" value={String(form.order)} onChange={handleChange} />
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Features (Bullet Points)</label>
+              <div className="space-y-2">
+                {form.features.map((feature, index) => (
+                  <div key={index} className="flex gap-2">
+                    <input
+                      type="text"
+                      value={feature}
+                      onChange={(e) => handleFeatureChange(index, e.target.value)}
+                      placeholder={`Feature ${index + 1}`}
+                      className="flex-1 rounded-lg border border-gray-200 bg-white/50 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cluso-deep/30"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeFeature(index)}
+                      className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                      disabled={form.features.length === 1}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={addFeature}
+                  className="text-sm text-cluso-deep hover:underline font-medium"
+                >
+                  + Add Feature
+                </button>
+              </div>
+            </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Service Image</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Icon Image</label>
               <ImageUploader
-                value={form.image}
-                onChange={(url) => setForm((prev) => ({ ...prev, image: url }))}
-                folder="cluso/services"
+                value={form.icon}
+                onChange={(url) => setForm((prev) => ({ ...prev, icon: url }))}
+                folder="cluso/services/icons"
               />
+              <p className="text-xs text-gray-500 mt-1">Upload an image to use as the icon, or enter a Lucide icon name below if empty.</p>
             </div>
+            
+            <GlassInput label="Lucide Icon (Optional fallback)" name="iconText" value={(form.icon && !form.icon.includes('/')) ? form.icon : ''} onChange={(e) => setForm(prev => ({ ...prev, icon: e.target.value }))} />
+
+            <GlassInput label="Display Order" name="order" type="number" value={String(form.order)} onChange={handleChange} />
 
             {error && (
               <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600">{error}</div>
