@@ -61,7 +61,13 @@ export default function EditJobPage({ params }: { params: Promise<{ slug: string
 
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || 'Failed to update job post');
+        let errorMessage = data.error || 'Failed to update job post';
+        if (typeof data.error === 'object' && data.error !== null) {
+          errorMessage = Object.entries(data.error)
+            .map(([field, msgs]) => `${field}: ${(msgs as string[]).join(', ')}`)
+            .join(' | ');
+        }
+        throw new Error(errorMessage);
       }
 
       router.push('/dashboard/careers');
