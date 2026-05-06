@@ -37,7 +37,7 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 ## Admin Login Details
 
-**Email:** `admin@cluso.com`
-**Password:** `ClusoAdmin!2024`
+**Email:** `admin@cluso.in`
+**Password:** `Cluso@2026`
 
 *Note: Please change this password after logging in for the first time.*
