@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useRef, useState, useEffect } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import TiptapImage from '@tiptap/extension-image';
 import TiptapLink from '@tiptap/extension-link';
 import CodeBlock from '@tiptap/extension-code-block';
-import { Bold, Italic, List, ListOrdered, Heading1, Heading2, Quote, Undo, Redo, Link as LinkIcon, Code, Image as ImageIcon } from 'lucide-react';
+import { Bold, Italic, List, ListOrdered, Heading1, Heading2, Quote, Undo, Redo, Link as LinkIcon, Code, Image as ImageIcon, Smile, Upload } from 'lucide-react';
+import EmojiPicker from 'emoji-picker-react';
 
 interface RichTextEditorProps {
   content: string;
@@ -14,6 +15,11 @@ interface RichTextEditorProps {
 }
 
 export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [bubbleMenuPos, setBubbleMenuPos] = useState({ top: 0, left: 0, visible: false });
+
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -31,6 +37,25 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());
     },
+    onSelectionUpdate: ({ editor }) => {
+      const { empty, ranges } = editor.state.selection;
+      if (empty || editor.isActive('image') || editor.isActive('codeBlock')) {
+        setBubbleMenuPos(prev => ({ ...prev, visible: false }));
+        return;
+      }
+      
+      const { view } = editor;
+      const { state } = view;
+      const { from, to } = state.selection;
+      const start = view.coordsAtPos(from);
+      const end = view.coordsAtPos(to);
+      const editorDom = view.dom.getBoundingClientRect();
+
+      const top = Math.min(start.top, end.top) - editorDom.top - 40;
+      const left = (start.left + end.left) / 2 - editorDom.left;
+
+      setBubbleMenuPos({ top: top > 0 ? top : 0, left: left > 0 ? left : 0, visible: true });
+    }
   });
 
   const setLink = useCallback(() => {
@@ -45,7 +70,7 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
     editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
   }, [editor]);
 
-  const addImage = useCallback(() => {
+  const addImageUrl = useCallback(() => {
     if (!editor) return;
     const url = window.prompt('Image URL');
     if (url) {
@@ -53,22 +78,95 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
     }
   }, [editor]);
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !editor) return;
+
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file.');
+      return;
+    }
+    if (file.size > 3 * 1024 * 1024) {
+      alert('Image must be less than 2MB.');
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('folder', 'blog');
+      formData.append('storage', 'auto');
+
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        editor.chain().focus().setImage({ src: data.secure_url }).run();
+      } else {
+        const data = await res.json().catch(() => null);
+        alert(typeof data?.error === 'string' ? data.error : 'Upload failed.');
+      }
+    } catch {
+      alert('Upload failed. Please try again.');
+    } finally {
+      setUploading(false);
+      e.target.value = '';
+    }
+  };
+
+  const onEmojiClick = (emojiData: any) => {
+    if (!editor) return;
+    editor.chain().focus().insertContent(emojiData.emoji).run();
+    setShowEmojiPicker(false);
+  };
+
   if (!editor) return null;
 
-  const ToolButton = ({ onClick, active, children }: { onClick: () => void; active?: boolean; children: React.ReactNode }) => (
+  const ToolButton = ({ onClick, active, disabled, children }: { onClick: () => void; active?: boolean; disabled?: boolean; children: React.ReactNode }) => (
     <button
       type="button"
       onClick={onClick}
-      className={`p-1.5 rounded-lg transition-colors ${active ? 'bg-cluso-deep/10 text-cluso-deep' : 'text-gray-500 hover:bg-gray-100'}`}
+      disabled={disabled}
+      className={`p-1.5 rounded-lg transition-colors ${active ? 'bg-cluso-deep/10 text-cluso-deep' : 'text-gray-500 hover:bg-gray-100'} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
     >
       {children}
     </button>
   );
 
   return (
-    <div className="border border-gray-200 rounded-xl overflow-hidden bg-white">
+    <div className="border border-gray-200 rounded-xl overflow-visible bg-white relative">
+      <input 
+        type="file" 
+        accept="image/*" 
+        ref={fileRef} 
+        onChange={handleFileUpload} 
+        className="hidden" 
+      />
+
+      {/* Bubble Menu Custom */}
+      {bubbleMenuPos.visible && (
+        <div 
+          className="absolute z-10 flex items-center gap-1 px-2 py-1 bg-white border border-gray-200 rounded-lg shadow-lg -translate-x-1/2 transition-all duration-75"
+          style={{ top: `${bubbleMenuPos.top}px`, left: `${bubbleMenuPos.left}px` }}
+        >
+          <ToolButton onClick={() => editor.chain().focus().toggleBold().run()} active={editor.isActive('bold')}>
+            <Bold size={14} />
+          </ToolButton>
+          <ToolButton onClick={() => editor.chain().focus().toggleItalic().run()} active={editor.isActive('italic')}>
+            <Italic size={14} />
+          </ToolButton>
+          <ToolButton onClick={setLink} active={editor.isActive('link')}>
+            <LinkIcon size={14} />
+          </ToolButton>
+        </div>
+      )}
+
       {/* Toolbar */}
-      <div className="flex items-center gap-1 px-3 py-2 border-b border-gray-100 bg-gray-50/50 flex-wrap">
+      <div className="flex items-center gap-1 px-3 py-2 border-b border-gray-100 bg-gray-50/50 flex-wrap relative">
         <ToolButton onClick={() => editor.chain().focus().toggleBold().run()} active={editor.isActive('bold')}>
           <Bold size={16} />
         </ToolButton>
@@ -99,9 +197,28 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
         <ToolButton onClick={setLink} active={editor.isActive('link')}>
           <LinkIcon size={16} />
         </ToolButton>
-        <ToolButton onClick={addImage}>
+        <ToolButton onClick={() => fileRef.current?.click()} disabled={uploading}>
+          <Upload size={16} />
+        </ToolButton>
+        <ToolButton onClick={addImageUrl}>
           <ImageIcon size={16} />
         </ToolButton>
+        <div className="w-px h-5 bg-gray-200 mx-1" />
+        
+        <div className="relative">
+          <ToolButton onClick={() => setShowEmojiPicker(!showEmojiPicker)}>
+            <Smile size={16} />
+          </ToolButton>
+          {showEmojiPicker && (
+            <div className="absolute top-10 left-0 z-50 shadow-xl rounded-xl">
+              <div className="fixed inset-0" onClick={() => setShowEmojiPicker(false)}></div>
+              <div className="relative z-10">
+                <EmojiPicker onEmojiClick={onEmojiClick} width={280} height={350} />
+              </div>
+            </div>
+          )}
+        </div>
+
         <div className="w-px h-5 bg-gray-200 mx-1" />
         <ToolButton onClick={() => editor.chain().focus().undo().run()}>
           <Undo size={16} />
@@ -112,7 +229,9 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
       </div>
 
       {/* Editor */}
-      <EditorContent editor={editor} className="prose max-w-none" />
+      <div className="p-4 min-h-[200px]" onClick={() => editor.commands.focus()}>
+        <EditorContent editor={editor} className="prose max-w-none focus:outline-none focus:ring-0" />
+      </div>
     </div>
   );
 }
