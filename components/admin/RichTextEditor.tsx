@@ -1,10 +1,12 @@
 'use client';
 
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import TiptapImage from '@tiptap/extension-image';
-import { Bold, Italic, List, ListOrdered, Heading1, Heading2, Quote, Undo, Redo } from 'lucide-react';
+import TiptapLink from '@tiptap/extension-link';
+import CodeBlock from '@tiptap/extension-code-block';
+import { Bold, Italic, List, ListOrdered, Heading1, Heading2, Quote, Undo, Redo, Link as LinkIcon, Code, Image as ImageIcon } from 'lucide-react';
 
 interface RichTextEditorProps {
   content: string;
@@ -16,6 +18,13 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
     extensions: [
       StarterKit,
       TiptapImage,
+      TiptapLink.configure({
+        openOnClick: false,
+        HTMLAttributes: {
+          class: 'text-cluso-deep underline',
+        },
+      }),
+      CodeBlock,
     ],
     content,
     immediatelyRender: false,
@@ -23,6 +32,26 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
       onChange(editor.getHTML());
     },
   });
+
+  const setLink = useCallback(() => {
+    if (!editor) return;
+    const previousUrl = editor.getAttributes('link').href;
+    const url = window.prompt('URL', previousUrl);
+    if (url === null) return;
+    if (url === '') {
+      editor.chain().focus().extendMarkRange('link').unsetLink().run();
+      return;
+    }
+    editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
+  }, [editor]);
+
+  const addImage = useCallback(() => {
+    if (!editor) return;
+    const url = window.prompt('Image URL');
+    if (url) {
+      editor.chain().focus().setImage({ src: url }).run();
+    }
+  }, [editor]);
 
   if (!editor) return null;
 
@@ -62,6 +91,16 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
         </ToolButton>
         <ToolButton onClick={() => editor.chain().focus().toggleBlockquote().run()} active={editor.isActive('blockquote')}>
           <Quote size={16} />
+        </ToolButton>
+        <ToolButton onClick={() => editor.chain().focus().toggleCodeBlock().run()} active={editor.isActive('codeBlock')}>
+          <Code size={16} />
+        </ToolButton>
+        <div className="w-px h-5 bg-gray-200 mx-1" />
+        <ToolButton onClick={setLink} active={editor.isActive('link')}>
+          <LinkIcon size={16} />
+        </ToolButton>
+        <ToolButton onClick={addImage}>
+          <ImageIcon size={16} />
         </ToolButton>
         <div className="w-px h-5 bg-gray-200 mx-1" />
         <ToolButton onClick={() => editor.chain().focus().undo().run()}>
