@@ -2,12 +2,61 @@
 
 import React, { useCallback, useRef, useState, useEffect } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
+import { Extension } from '@tiptap/core';
 import StarterKit from '@tiptap/starter-kit';
 import TiptapImage from '@tiptap/extension-image';
 import TiptapLink from '@tiptap/extension-link';
 import CodeBlock from '@tiptap/extension-code-block';
-import { Bold, Italic, List, ListOrdered, Heading1, Heading2, Quote, Undo, Redo, Link as LinkIcon, Code, Image as ImageIcon, Smile, Upload } from 'lucide-react';
+import { Bold, Italic, List, ListOrdered, Heading1, Heading2, Quote, Undo, Redo, Link as LinkIcon, Code, Image as ImageIcon, Smile, Upload, ArrowDownUp } from 'lucide-react';
 import EmojiPicker from 'emoji-picker-react';
+
+const LineHeight = Extension.create({
+  name: 'lineHeight',
+  addOptions() {
+    return {
+      types: ['paragraph', 'heading', 'list_item'],
+      defaultLineHeight: 'normal',
+    }
+  },
+  addGlobalAttributes() {
+    return [
+      {
+        types: this.options.types,
+        attributes: {
+          lineHeight: {
+            default: this.options.defaultLineHeight,
+            parseHTML: element => element.style.lineHeight || this.options.defaultLineHeight,
+            renderHTML: attributes => {
+              if (attributes.lineHeight === this.options.defaultLineHeight) {
+                return {}
+              }
+              return { style: `line-height: ${attributes.lineHeight}` }
+            },
+          },
+        },
+      },
+    ]
+  },
+  addCommands() {
+    return {
+      setLineHeight: (lineHeight: string) => ({ commands }) => {
+        return this.options.types.every((type: string) => commands.updateAttributes(type, { lineHeight }))
+      },
+      unsetLineHeight: () => ({ commands }) => {
+        return this.options.types.every((type: string) => commands.resetAttributes(type, 'lineHeight'))
+      },
+    }
+  },
+});
+
+declare module '@tiptap/core' {
+  interface Commands<ReturnType> {
+    lineHeight: {
+      setLineHeight: (lineHeight: string) => ReturnType;
+      unsetLineHeight: () => ReturnType;
+    }
+  }
+}
 
 interface RichTextEditorProps {
   content: string;
@@ -18,12 +67,14 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [showLineHeightMenu, setShowLineHeightMenu] = useState(false);
   const [bubbleMenuPos, setBubbleMenuPos] = useState({ top: 0, left: 0, visible: false });
 
   const editor = useEditor({
     extensions: [
       StarterKit,
       TiptapImage,
+      LineHeight,
       TiptapLink.configure({
         openOnClick: false,
         HTMLAttributes: {
@@ -194,6 +245,35 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
           <Code size={16} />
         </ToolButton>
         <div className="w-px h-5 bg-gray-200 mx-1" />
+        
+        {/* Line Height Menu */}
+        <div className="relative">
+          <ToolButton onClick={() => setShowLineHeightMenu(!showLineHeightMenu)}>
+            <ArrowDownUp size={16} />
+          </ToolButton>
+          {showLineHeightMenu && (
+            <>
+              <div className="fixed inset-0 z-40" onClick={() => setShowLineHeightMenu(false)}></div>
+              <div className="absolute top-10 left-0 z-50 bg-white border border-gray-200 rounded-lg shadow-lg flex flex-col min-w-[120px] py-1">
+                {['1', '1.2', '1.5', '2', '2.5', '3'].map((lh) => (
+                  <button
+                    key={lh}
+                    type="button"
+                    onClick={() => {
+                      editor.chain().focus().setLineHeight(lh).run();
+                      setShowLineHeightMenu(false);
+                    }}
+                    className={`px-4 py-2 text-sm text-left hover:bg-gray-100 ${editor.isActive({ lineHeight: lh }) ? 'text-cluso-deep font-medium bg-cluso-deep/5' : 'text-gray-700'}`}
+                  >
+                    {lh === '1' ? 'Single (1)' : lh}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+        <div className="w-px h-5 bg-gray-200 mx-1" />
+
         <ToolButton onClick={setLink} active={editor.isActive('link')}>
           <LinkIcon size={16} />
         </ToolButton>
