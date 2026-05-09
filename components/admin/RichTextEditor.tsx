@@ -229,7 +229,7 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
       </div>
 
       {/* Editor */}
-      <div className="p-4 min-h-[200px]" onClick={() => editor.commands.focus()}>
+      <div className="p-4 min-h-[200px] max-h-[60vh] overflow-y-auto" onClick={() => editor.commands.focus()}>
         <EditorContent editor={editor} className="prose max-w-none focus:outline-none focus:ring-0" />
       </div>
     </div>
