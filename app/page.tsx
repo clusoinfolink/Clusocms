@@ -42,7 +42,7 @@ export default function LoginPage() {
             <Lock className="text-cluso-deep" size={28} />
           </div>
           <h1 className="font-heading text-2xl font-bold text-gray-900">
-            <span className="text-cluso-deep">Cluso</span> Admin
+            <span className="text-cluso-deep">Cluso Infolink</span> Admin
           </h1>
           <p className="text-gray-500 text-sm mt-1">Sign in to manage your content</p>
         </div>

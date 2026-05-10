@@ -93,21 +93,19 @@ export default function CandidateRequestsPage() {
                       <p className={`text-sm truncate ${!item.read ? 'font-bold text-gray-900' : 'font-medium text-gray-700'}`}>
                         {item.name}
                       </p>
-                      {item.jobTitle && (
-                        <span 
-                          className="text-[10px] px-2 py-0.5 rounded-full inline-block truncate max-w-[120px]"
-                          style={{
-                            backgroundColor: item.jobColor ? `${item.jobColor}20` : '#e2e8f0',
-                            color: item.jobColor || '#475569',
-                            border: `1px solid ${item.jobColor ? `${item.jobColor}40` : '#cbd5e1'}`
-                          }}
-                          title={item.jobTitle}
-                        >
-                          {item.jobTitle}
-                        </span>
-                      )}
+                      <span 
+                        className="text-[10px] px-2 py-0.5 rounded-full inline-block truncate max-w-[120px]"
+                        style={{
+                          backgroundColor: item.jobColor ? `${item.jobColor}20` : '#e2e8f0',
+                          color: item.jobColor || '#475569',
+                          border: `1px solid ${item.jobColor ? `${item.jobColor}40` : '#cbd5e1'}`
+                        }}
+                        title={item.jobTitle || 'General Application'}
+                      >
+                        {item.jobTitle || 'General Application'}
+                      </span>
                     </div>
-                    <p className="text-xs text-gray-500 truncate">{item.email}</p>
+                    <p className="text-xs text-gray-500 truncate mt-0.5">ID: {item.jobId || `GEN-${item._id.slice(-6).toUpperCase()}`} &bull; {item.email}</p>
                   </div>
                   <div className="flex items-center gap-1 ml-2 shrink-0">
                     {!item.read && <div className="w-2 h-2 rounded-full bg-cluso-deep" />}
@@ -139,18 +137,16 @@ export default function CandidateRequestsPage() {
                   <div>
                     <div className="flex items-center gap-3">
                       <h2 className="text-lg font-bold text-gray-900">{selected.name}</h2>
-                      {selected.jobTitle && (
-                        <span 
-                          className="text-xs px-2.5 py-1 rounded-full"
-                          style={{
-                            backgroundColor: selected.jobColor ? `${selected.jobColor}20` : '#e2e8f0',
-                            color: selected.jobColor || '#475569',
-                            border: `1px solid ${selected.jobColor ? `${selected.jobColor}40` : '#cbd5e1'}`
-                          }}
-                        >
-                          Application for: <span className="font-semibold">{selected.jobTitle}</span>
-                        </span>
-                      )}
+                      <span 
+                        className="text-xs px-2.5 py-1 rounded-full"
+                        style={{
+                          backgroundColor: selected.jobColor ? `${selected.jobColor}20` : '#e2e8f0',
+                          color: selected.jobColor || '#475569',
+                          border: `1px solid ${selected.jobColor ? `${selected.jobColor}40` : '#cbd5e1'}`
+                        }}
+                      >
+                        Application for: <span className="font-semibold">{selected.jobTitle || 'General Application'}</span>
+                      </span>
                     </div>
                     <p className="text-sm text-gray-500">Candidate Application</p>
                   </div>
@@ -166,6 +162,13 @@ export default function CandidateRequestsPage() {
                   <p className="flex items-center gap-2"><Mail size={14} /> {selected.email}</p>
                   <p className="flex items-center gap-2"><Phone size={14} /> {selected.phone}</p>
                   <p className="text-gray-500">Submitted: {new Date(selected.createdAt).toLocaleString()}</p>
+                  {/* Added Job Title & ID */}
+                  <p className="text-gray-700 font-medium col-span-1 md:col-span-2 mt-2">
+                    Job Title: <span className="font-normal">{selected.jobTitle || 'General Application (Auto-Generated)'}</span>
+                  </p>
+                  <p className="text-gray-700 font-medium col-span-1 md:col-span-2">
+                    Job ID: <span className="font-normal">{selected.jobId || `GEN-${selected._id.slice(-6).toUpperCase()}`}</span>
+                  </p>
                 </div>
 
                 <div>

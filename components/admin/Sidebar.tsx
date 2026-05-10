@@ -33,7 +33,7 @@ export function Sidebar({ unreadCount = 0 }: SidebarProps) {
       {/* Logo */}
       <div className="h-16 flex items-center px-6 border-b border-gray-100">
         <Link href="/dashboard" className="flex items-center space-x-2">
-          <span className="font-heading text-xl font-bold text-cluso-deep">Cluso</span>
+          <span className="font-heading text-xl font-bold text-cluso-deep">Cluso Infolink</span>
           <span className="font-heading text-xl font-light text-gray-500">Admin</span>
         </Link>
       </div>

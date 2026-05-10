@@ -16,7 +16,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Cluso Admin — Content Management",
+  title: "Cluso Infolink Admin — Content Management",
   description: "Admin panel for Cluso Infolink",
 };
 

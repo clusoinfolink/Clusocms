@@ -150,7 +150,7 @@ const blogPosts = [
 <p><strong>Risk Mitigation:</strong> Reduce the likelihood of negligent hiring claims and workplace incidents.</p>
 <p><strong>Regulatory Compliance:</strong> Stay compliant with industry-specific regulations and legal requirements.</p>
 <p><strong>Trust Building:</strong> Build a transparent workplace culture where every team member is verified and trusted.</p>
-<h2>The Cluso Approach</h2>
+<h2>The Cluso Infolink Approach</h2>
 <p>At Cluso Infolink, we leverage cutting-edge technology combined with thorough manual review processes to deliver accurate, fast, and transparent background verification services.</p>`,
     author: 'Rajesh Kumar',
     category: 'Industry Insights',
@@ -207,7 +207,7 @@ const testimonials = [
     name: 'Ananya Reddy',
     company: 'FinServ Solutions',
     role: 'Chief People Officer',
-    content: 'The transparency and accuracy of Cluso\'s reports give us complete confidence in our hiring decisions. Highly recommended.',
+    content: 'The transparency and accuracy of Cluso Infolink\'s reports give us complete confidence in our hiring decisions. Highly recommended.',
     rating: 5,
   },
   {
