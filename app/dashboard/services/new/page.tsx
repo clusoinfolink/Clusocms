@@ -1,9 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { GlassButton } from '@/components/ui/GlassButton';
 import { GlassInput } from '@/components/ui/GlassInput';
+import { LUCIDE_ICONS_LIST } from '@/lib/icons';
+import { GlassSelect } from '@/components/ui/GlassSelect';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { ImageUploader } from '@/components/admin/ImageUploader';
 import { ArrowLeft } from 'lucide-react';
@@ -13,11 +15,36 @@ export default function NewServicePage() {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [countries, setCountries] = useState<{ value: string; label: string }[]>([
+    { value: 'India', label: 'India' },
+    { value: 'United Kingdom', label: 'United Kingdom' },
+    { value: 'USA', label: 'USA' },
+    { value: 'Global', label: 'Global' },
+  ]);
+
+  useEffect(() => {
+    async function fetchSettings() {
+      try {
+        const res = await fetch('/api/settings');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.serviceCountries && data.serviceCountries.length > 0) {
+            setCountries(data.serviceCountries.map((c: string) => ({ value: c, label: c })));
+          }
+        }
+      } catch (e) {
+        console.error('Failed to fetch settings', e);
+      }
+    }
+    fetchSettings();
+  }, []);
+
   const [form, setForm] = useState({
     title: '',
     description: '',
     icon: '',
     image: '',
+    country: 'India',
     order: 0,
     features: [''],
   });
@@ -135,9 +162,24 @@ export default function NewServicePage() {
               <p className="text-xs text-gray-500 mt-1">Upload an image to use as the icon, or enter a Lucide icon name below if empty.</p>
             </div>
             
-            <GlassInput label="Lucide Icon (Optional fallback)" name="iconText" value={(form.icon && !form.icon.includes('/')) ? form.icon : ''} onChange={(e) => setForm(prev => ({ ...prev, icon: e.target.value }))} />
+            <GlassSelect 
+              label="Lucide Icon (Optional fallback)" 
+              name="iconText" 
+              options={LUCIDE_ICONS_LIST}
+              value={(form.icon && !form.icon.includes('/')) ? form.icon : ''} 
+              onChange={(e) => setForm(prev => ({ ...prev, icon: e.target.value }))} 
+              showIcons={true}
+            />
 
             <GlassInput label="Display Order" name="order" type="number" value={String(form.order)} onChange={handleChange} />
+
+            <GlassSelect
+              label="Country"
+              name="country"
+              options={countries}
+              value={form.country}
+              onChange={(e) => setForm((prev) => ({ ...prev, country: e.target.value }))}
+            />
 
             {error && (
               <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600">{error}</div>

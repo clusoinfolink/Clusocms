@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { GlassButton } from '@/components/ui/GlassButton';
 import { GlassInput } from '@/components/ui/GlassInput';
+import { LUCIDE_ICONS_LIST } from '@/lib/icons';
+import { GlassSelect } from '@/components/ui/GlassSelect';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { ImageUploader } from '@/components/admin/ImageUploader';
 import { ArrowLeft } from 'lucide-react';
@@ -16,28 +18,52 @@ export default function EditServicePage() {
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [countries, setCountries] = useState<{ value: string; label: string }[]>([
+    { value: 'India', label: 'India' },
+    { value: 'United Kingdom', label: 'United Kingdom' },
+    { value: 'USA', label: 'USA' },
+    { value: 'Global', label: 'Global' },
+  ]);
+
   const [form, setForm] = useState({
     title: '',
     description: '',
     icon: '',
     image: '',
+    country: 'India',
     order: 0,
     features: [''],
   });
 
   useEffect(() => {
     async function load() {
-      const res = await fetch(`/api/services/${id}`);
-      if (res.ok) {
-        const data = await res.json();
-        setForm({
-          title: data.title || '',
-          description: data.description || '',
-          icon: data.icon || '',
-          image: data.image || '',
-          order: data.order || 0,
-          features: data.features?.length > 0 ? data.features : [''],
-        });
+      try {
+        const [serviceRes, settingsRes] = await Promise.all([
+          fetch(`/api/services/${id}`),
+          fetch('/api/settings')
+        ]);
+        
+        if (settingsRes.ok) {
+          const settingsData = await settingsRes.json();
+          if (settingsData.serviceCountries && settingsData.serviceCountries.length > 0) {
+            setCountries(settingsData.serviceCountries.map((c: string) => ({ value: c, label: c })));
+          }
+        }
+
+        if (serviceRes.ok) {
+          const data = await serviceRes.json();
+          setForm({
+            title: data.title || '',
+            description: data.description || '',
+            icon: data.icon || '',
+            image: data.image || '',
+            country: data.country || 'India',
+            order: data.order || 0,
+            features: data.features?.length > 0 ? data.features : [''],
+          });
+        }
+      } catch (e) {
+        console.error('Failed to load data', e);
       }
       setLoading(false);
     }
@@ -161,9 +187,24 @@ export default function EditServicePage() {
               <p className="text-xs text-gray-500 mt-1">Upload an image to use as the icon, or enter a Lucide icon name below.</p>
             </div>
             
-            <GlassInput label="Lucide Icon (Optional fallback)" name="iconText" value={(!form.icon.includes('/')) ? form.icon : ''} onChange={(e) => setForm(prev => ({ ...prev, icon: e.target.value }))} />
+            <GlassSelect 
+              label="Lucide Icon (Optional fallback)" 
+              name="iconText" 
+              options={LUCIDE_ICONS_LIST}
+              value={(!form.icon.includes('/')) ? form.icon : ''} 
+              onChange={(e) => setForm(prev => ({ ...prev, icon: e.target.value }))} 
+              showIcons={true}
+            />
 
             <GlassInput label="Display Order" name="order" type="number" value={String(form.order)} onChange={handleChange} />
+
+            <GlassSelect
+              label="Country"
+              name="country"
+              options={countries}
+              value={form.country}
+              onChange={(e) => setForm((prev) => ({ ...prev, country: e.target.value }))}
+            />
 
             {error && (
               <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600">{error}</div>

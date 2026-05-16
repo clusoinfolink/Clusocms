@@ -15,6 +15,7 @@ interface Settings {
   contactPhone: string;
   address: string;
   trustedCompanies: string[];
+  serviceCountries: string[];
   socialLinks: {
     facebook: string;
     twitter: string;
@@ -29,6 +30,7 @@ export default function SettingsPage() {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
   const [companyInput, setCompanyInput] = useState('');
+  const [countryInput, setCountryInput] = useState('');
   const [form, setForm] = useState<Settings>({
     siteName: '',
     tagline: '',
@@ -38,6 +40,7 @@ export default function SettingsPage() {
     contactPhone: '',
     address: '',
     trustedCompanies: [],
+    serviceCountries: [],
     socialLinks: { facebook: '', twitter: '', linkedin: '', instagram: '' },
   });
 
@@ -56,6 +59,9 @@ export default function SettingsPage() {
           address: data.address || '',
           trustedCompanies: Array.isArray(data.trustedCompanies)
             ? data.trustedCompanies.filter((item: unknown): item is string => typeof item === 'string')
+            : [],
+          serviceCountries: Array.isArray(data.serviceCountries)
+            ? data.serviceCountries.filter((item: unknown): item is string => typeof item === 'string')
             : [],
           socialLinks: {
             facebook: data.socialLinks?.facebook || '',
@@ -100,6 +106,29 @@ export default function SettingsPage() {
     setForm((prev) => ({
       ...prev,
       trustedCompanies: prev.trustedCompanies.filter((_, i) => i !== index),
+    }));
+  }
+
+  function addCountry() {
+    const country = countryInput.trim();
+    if (!country) return;
+
+    const alreadyExists = form.serviceCountries.some(
+      (item) => item.toLowerCase() === country.toLowerCase()
+    );
+    if (alreadyExists) {
+      setCountryInput('');
+      return;
+    }
+
+    setForm((prev) => ({ ...prev, serviceCountries: [...prev.serviceCountries, country] }));
+    setCountryInput('');
+  }
+
+  function removeCountry(index: number) {
+    setForm((prev) => ({
+      ...prev,
+      serviceCountries: prev.serviceCountries.filter((_, i) => i !== index),
     }));
   }
 
@@ -211,6 +240,51 @@ export default function SettingsPage() {
                         aria-label={`Remove ${company}`}
                         className="rounded-full px-2 py-0.5 text-xs text-red-600 hover:bg-red-50"
                         onClick={() => removeCompany(index)}
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Service Countries
+              </label>
+              <div className="flex gap-2">
+                <GlassInput
+                  placeholder="Add country"
+                  value={countryInput}
+                  onChange={(e) => setCountryInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      addCountry();
+                    }
+                  }}
+                />
+                <GlassButton type="button" variant="secondary" onClick={addCountry}>
+                  Add
+                </GlassButton>
+              </div>
+
+              <div className="mt-3 flex flex-wrap gap-2">
+                {form.serviceCountries.length === 0 ? (
+                  <p className="text-sm text-gray-500">No countries added yet.</p>
+                ) : (
+                  form.serviceCountries.map((country, index) => (
+                    <div
+                      key={`country-${index}`}
+                      className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-1.5 text-sm text-gray-700"
+                    >
+                      <span>{country}</span>
+                      <button
+                        type="button"
+                        aria-label={`Remove ${country}`}
+                        className="rounded-full px-2 py-0.5 text-xs text-red-600 hover:bg-red-50"
+                        onClick={() => removeCountry(index)}
                       >
                         Remove
                       </button>

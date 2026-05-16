@@ -39,21 +39,22 @@ async function seed() {
 
   const existing = await Admin.findOne({ email: 'admin@cluso.in' });
   if (existing) {
-    console.log('Admin user already exists. Skipping seed.');
-    await mongoose.disconnect();
-    return;
+    console.log('Admin user already exists. Overwriting password.');
+    existing.passwordHash = await bcrypt.hash('Cluso@2026', 12);
+    await existing.save();
+    console.log('Admin user updated successfully');
+  } else {
+    const hashedPassword = await bcrypt.hash('Cluso@2026', 12);
+    await Admin.create({
+      email: 'admin@cluso.in',
+      passwordHash: hashedPassword,
+      name: 'Admin',
+    });
+    console.log('Admin user created successfully');
   }
 
-  const hashedPassword = await bcrypt.hash('Cluso Infolink@2026', 12);
-  await Admin.create({
-    email: 'admin@cluso.in',
-    passwordHash: hashedPassword,
-    name: 'Admin',
-  });
-
-  console.log('Admin user created successfully');
   console.log('Email: admin@cluso.in');
-  console.log('Password: Cluso Infolink@2026');
+  console.log('Password: Cluso@2026');
   console.log('⚠️  Please change this password immediately after first login!');
 
   await mongoose.disconnect();
