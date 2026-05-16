@@ -24,6 +24,8 @@ export default function EditJobPage({ params }: { params: Promise<{ slug: string
     location: '',
     type: '',
     primaryColor: '#0ED3A3',
+    expiryDate: '',
+    jobId: '',
     published: false,
   });
 
@@ -38,6 +40,7 @@ export default function EditJobPage({ params }: { params: Promise<{ slug: string
       const data = await res.json();
       setFormData({
         ...data,
+        expiryDate: data.expiryDate ? new Date(data.expiryDate).toISOString().split('T')[0] : '',
         published: data.status === 'published'
       });
     } catch (err: any) {
@@ -163,6 +166,22 @@ export default function EditJobPage({ params }: { params: Promise<{ slug: string
                     className="w-full h-10 rounded cursor-pointer"
                   />
                 </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Expiry Date (Optional)</label>
+                  <input
+                    type="date"
+                    value={formData.expiryDate}
+                    onChange={(e) => setFormData({ ...formData, expiryDate: e.target.value })}
+                    className="w-full rounded-xl border border-gray-200 bg-white/50 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-cluso-deep/30"
+                  />
+                </div>
+              </div>
+            </GlassCard>
+
+            <GlassCard>
+              <h3 className="font-medium text-gray-900 mb-4">Job ID</h3>
+              <div className="text-sm font-mono text-gray-700 bg-gray-100 p-3 rounded-lg border border-gray-200">
+                {formData.jobId || 'N/A'}
               </div>
             </GlassCard>
 

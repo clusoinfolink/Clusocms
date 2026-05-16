@@ -10,6 +10,7 @@ export const createJobSchema = z.object({
   type: z.string().optional(),
   coverImage: z.string().optional(),
   primaryColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/i).optional().default('#0052cc'),
+  expiryDate: z.string().optional().nullable().transform(v => v ? new Date(v) : null),
   status: z.enum(['draft', 'published']).optional(),
   published: z.boolean().default(false),
 }).transform((data) => {

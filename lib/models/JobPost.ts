@@ -10,6 +10,8 @@ const JobPostSchema = new Schema({
   type:         { type: String, default: 'Full-time' },
   coverImage:   { type: String },
   primaryColor: { type: String, default: '#0052cc' },
+  expiryDate:   { type: Date },
+  jobId:        { type: String, unique: true, sparse: true },
   published:    { type: Boolean, default: false, index: true },
 }, { timestamps: true });
 

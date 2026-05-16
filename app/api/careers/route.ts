@@ -18,7 +18,7 @@ export async function GET() {
 
   await dbConnect();
   const posts = await JobPost.find()
-    .select('title slug department type location primaryColor createdAt published')
+    .select('title slug department type location primaryColor createdAt published jobId expiryDate')
     .sort({ createdAt: -1 })
     .lean();
   return NextResponse.json(posts.map((post) => withStatus(post as { published?: boolean })));
@@ -35,6 +35,10 @@ export async function POST(req: NextRequest) {
   }
 
   await dbConnect();
-  const post = await JobPost.create(parsed.data);
+  
+  // Generate permanent unique Job ID
+  const jobId = `JOB-${Math.floor(100000 + Math.random() * 900000)}`;
+  
+  const post = await JobPost.create({ ...parsed.data, jobId });
   return NextResponse.json(withStatus(post.toObject()), { status: 201 });
 }

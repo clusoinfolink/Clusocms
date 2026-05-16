@@ -17,6 +17,8 @@ interface JobPost {
   department: string;
   location: string;
   type: string;
+  jobId?: string;
+  expiryDate?: string;
   createdAt: string;
 }
 
@@ -45,18 +47,29 @@ export default function CareersListPage() {
   }
 
   const columns = [
+    { key: 'jobId' as const, label: 'Job ID' },
     { key: 'title' as const, label: 'Title' },
     { key: 'department' as const, label: 'Department' },
-    { key: 'location' as const, label: 'Location' },
     { key: 'type' as const, label: 'Type' },
     {
       key: 'status' as const,
       label: 'Status',
-      render: (val: unknown) => <StatusBadge status={val as string} />,
+      render: (val: unknown, row: any) => {
+        let isExpired = false;
+        if (row.expiryDate && new Date(row.expiryDate).getTime() < Date.now()) {
+          isExpired = true;
+        }
+        return (
+          <div className="flex gap-2 items-center">
+            <StatusBadge status={val as string} />
+            {isExpired && <span className="bg-orange-100 text-orange-800 text-xs px-2 py-0.5 rounded-full font-medium">Archived</span>}
+          </div>
+        );
+      },
     },
     {
       key: 'createdAt' as const,
-      label: 'Date',
+      label: 'Created',
       render: (val: unknown) => new Date(val as string).toLocaleDateString(),
     },
   ];
