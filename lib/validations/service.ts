@@ -6,6 +6,8 @@ export const createServiceSchema = z.object({
   icon: z.string().optional(),
   image: z.string().optional().or(z.literal('')),
   features: z.array(z.string()).optional(),
+  country: z.string().optional(),
+  countries: z.array(z.string()).optional(),
   order: z.number().int().min(0).default(0),
   active: z.boolean().default(true),
 });

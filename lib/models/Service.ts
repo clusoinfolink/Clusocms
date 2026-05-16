@@ -7,6 +7,7 @@ const ServiceSchema = new Schema({
   image:       { type: String },
   features:    [String],
   country:     { type: String, default: 'India' },
+  countries:   { type: [String], default: ['India'] },
   order:       { type: Number, default: 0 },
   active:      { type: Boolean, default: true },
 }, { timestamps: true });

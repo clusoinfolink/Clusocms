@@ -31,6 +31,7 @@ export default function EditServicePage() {
     icon: '',
     image: '',
     country: 'India',
+    countries: ['India'],
     order: 0,
     features: [''],
   });
@@ -58,6 +59,7 @@ export default function EditServicePage() {
             icon: data.icon || '',
             image: data.image || '',
             country: data.country || 'India',
+            countries: data.countries?.length > 0 ? data.countries : [data.country || 'India'],
             order: data.order || 0,
             features: data.features?.length > 0 ? data.features : [''],
           });
@@ -198,13 +200,28 @@ export default function EditServicePage() {
 
             <GlassInput label="Display Order" name="order" type="number" value={String(form.order)} onChange={handleChange} />
 
-            <GlassSelect
-              label="Country"
-              name="country"
-              options={countries}
-              value={form.country}
-              onChange={(e) => setForm((prev) => ({ ...prev, country: e.target.value }))}
-            />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Available Countries</label>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4 border border-gray-200 rounded-xl bg-white/50 max-h-60 overflow-y-auto">
+                {countries.map((c) => (
+                  <label key={c.value} className="flex items-center gap-2 text-sm cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      className="w-4 h-4 rounded border-gray-300 text-cluso-deep focus:ring-cluso-mid"
+                      checked={form.countries.includes(c.value)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setForm(prev => ({ ...prev, countries: [...prev.countries, c.value], country: prev.countries.length === 0 ? c.value : prev.country }));
+                        } else {
+                          setForm(prev => ({ ...prev, countries: prev.countries.filter(val => val !== c.value) }));
+                        }
+                      }}
+                    />
+                    {c.label}
+                  </label>
+                ))}
+              </div>
+            </div>
 
             {error && (
               <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600">{error}</div>
