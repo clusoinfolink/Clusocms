@@ -13,7 +13,6 @@ interface ServiceItem {
   title: string;
   description: string;
   icon: string;
-  order: number;
 }
 
 export default function ServicesPage() {
@@ -46,7 +45,6 @@ export default function ServicesPage() {
       render: (val: unknown) => <span className="line-clamp-1">{val as string}</span>,
     },
     { key: 'icon' as const, label: 'Icon' },
-    { key: 'order' as const, label: 'Order' },
   ];
 
   return (

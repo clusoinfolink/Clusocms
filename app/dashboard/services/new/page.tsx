@@ -172,8 +172,6 @@ export default function NewServicePage() {
               showIcons={true}
             />
 
-            <GlassInput label="Display Order" name="order" type="number" value={String(form.order)} onChange={handleChange} />
-
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Available Countries</label>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4 border border-gray-200 rounded-xl bg-white/50 max-h-60 overflow-y-auto">

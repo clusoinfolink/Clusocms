@@ -10,7 +10,7 @@ export async function GET() {
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   await dbConnect();
-  const services = await Service.find().sort({ order: 1 }).lean();
+  const services = await Service.find().collation({ locale: 'en' }).sort({ title: 1 }).lean();
   return NextResponse.json(services);
 }
 
