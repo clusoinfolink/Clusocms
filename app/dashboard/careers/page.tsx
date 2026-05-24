@@ -92,7 +92,7 @@ export default function CareersListPage() {
         actions={(row) => (
           <div className="flex gap-2">
             <a 
-              href={`http://localhost:3001/careers/${row.slug}`} 
+              href={`https://www.cluso.in/careers/${row.slug}`} 
               target="_blank" 
               rel="noopener noreferrer"
             >
