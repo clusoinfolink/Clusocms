@@ -14,6 +14,7 @@ interface CandidateRequest {
   jobTitle?: string;
   jobColor?: string;
   jobId?: string;
+  jobDescription?: string;
   resumeDocumentId: string;
   resumeFileName: string;
   read: boolean;
@@ -187,6 +188,16 @@ export default function CandidateRequestsPage() {
                     <span className="text-sm text-gray-500">No resume uploaded</span>
                   )}
                 </div>
+
+                {selected.jobDescription && (
+                  <div className="mt-8 border-t border-gray-100 pt-6">
+                    <p className="text-sm font-semibold text-gray-900 mb-4">Job Description Applied For</p>
+                    <div 
+                      className="prose prose-sm max-w-none text-gray-600 bg-gray-50 p-4 rounded-lg border border-gray-100"
+                      dangerouslySetInnerHTML={{ __html: selected.jobDescription }}
+                    />
+                  </div>
+                )}
               </div>
             </GlassCard>
           ) : (

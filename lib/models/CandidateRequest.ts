@@ -8,6 +8,7 @@ const CandidateRequestSchema = new Schema(
     jobId: { type: Schema.Types.ObjectId, ref: 'JobPost' },
     jobTitle: { type: String },
     jobColor: { type: String },
+    jobDescription: { type: String },
     resumeDocumentId: { type: Schema.Types.ObjectId, ref: 'CandidateRequestDocument', required: true },
     resumeFileName: { type: String, required: true },
     read: { type: Boolean, default: false, index: true },
