@@ -29,33 +29,46 @@ const AdminSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   passwordHash: { type: String, required: true },
   name: { type: String, required: true },
-});
+}, { collection: 'cmsadmins' });
 
 async function seed() {
   await mongoose.connect(MONGODB_URI);
   console.log('Connected to MongoDB');
 
-  const Admin = mongoose.models.Admin || mongoose.model('Admin', AdminSchema);
+  const Admin = mongoose.models.CmsAdmin || mongoose.model('CmsAdmin', AdminSchema, 'cmsadmins');
 
-  const existing = await Admin.findOne({ email: 'admin@cluso.in' });
-  if (existing) {
-    console.log('Admin user already exists. Overwriting password.');
-    existing.passwordHash = await bcrypt.hash('Cluso@2026', 12);
-    await existing.save();
-    console.log('Admin user updated successfully');
-  } else {
-    const hashedPassword = await bcrypt.hash('Cluso@2026', 12);
-    await Admin.create({
-      email: 'admin@cluso.in',
-      passwordHash: hashedPassword,
-      name: 'Admin',
-    });
-    console.log('Admin user created successfully');
-  }
+  // Delete ALL existing admin accounts
+  const deleteResult = await Admin.deleteMany({});
+  console.log(`Deleted ${deleteResult.deletedCount} existing admin(s).`);
 
-  console.log('Email: admin@cluso.in');
-  console.log('Password: Cluso@2026');
-  console.log('⚠️  Please change this password immediately after first login!');
+  // Create fresh admin with specified credentials
+  const hashedPassword = await bcrypt.hash('Cluso@2026', 12);
+
+  await Admin.create({
+    email: 'admin@cluso.in',
+    passwordHash: hashedPassword,
+    name: 'Admin',
+  });
+  console.log('Created: admin@cluso.in');
+
+  await Admin.create({
+    email: 'pkumar@cluso.in',
+    passwordHash: hashedPassword,
+    name: 'P Kumar',
+  });
+  console.log('Created: pkumar@cluso.in');
+
+  await Admin.create({
+    email: 'indiaops@cluso.in',
+    passwordHash: hashedPassword,
+    name: 'India Ops',
+  });
+  console.log('Created: indiaops@cluso.in');
+
+  console.log('\n--- CMS Admin Credentials ---');
+  console.log('Email: admin@cluso.in      | Password: Cluso@2026');
+  console.log('Email: pkumar@cluso.in     | Password: Cluso@2026');
+  console.log('Email: indiaops@cluso.in   | Password: Cluso@2026');
 
   await mongoose.disconnect();
 }

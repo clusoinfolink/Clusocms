@@ -17,10 +17,12 @@ export const authOptions: AuthOptions = {
 
         try {
           await dbConnect();
-          const admin = await Admin.findOne({ email: credentials.email });
+          const admin = await Admin.findOne({ email: { $regex: new RegExp(`^${credentials.email.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') } });
+          console.log('[Auth] Looking for:', credentials.email, '| Found:', admin ? admin.email : 'none');
           if (!admin) return null;
 
           const isValid = await bcrypt.compare(credentials.password, admin.passwordHash);
+          console.log('[Auth] Password valid:', isValid);
           if (!isValid) return null;
 
           return { id: admin._id.toString(), email: admin.email, name: admin.name };
